@@ -7,7 +7,6 @@ import { PrismaService } from "src/common/prisma/prisma.service";
 
 export class MessageService {
   constructor(private readonly prisma: PrismaService) {}
-  
 
 }
 
