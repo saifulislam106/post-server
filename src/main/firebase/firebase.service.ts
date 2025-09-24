@@ -9,8 +9,13 @@ export class FirebaseService {
 
   constructor() {
     if (!admin.apps.length) {
-      const serviceAccountPath = path.resolve(process.cwd(), 'firebase-admin.json');
-      const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
+      const serviceAccountPath = path.resolve(
+        process.cwd(),
+        'firebase-admin.json',
+      );
+      const serviceAccount = JSON.parse(
+        fs.readFileSync(serviceAccountPath, 'utf8'),
+      );
 
       admin.initializeApp({
         credential: admin.credential.cert(serviceAccount),

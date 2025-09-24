@@ -12,7 +12,6 @@ export class AuthService {
   ) {}
 
   async signup(dto: CreateAuthDto) {
-
     const hashedPassword = await bcrypt.hash(dto.password, 10);
     const user = await this.prisma.user.create({
       data: { ...dto, password: hashedPassword },
@@ -24,7 +23,7 @@ export class AuthService {
     const { email, password } = dto;
     const user = await this.prisma.user.findUnique({ where: { email } });
     if (!user) throw new Error('User not found');
-    
+
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) throw new Error('Invalid credentials');
 

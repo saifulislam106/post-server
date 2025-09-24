@@ -1,36 +1,36 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req } from '@nestjs/common';
+import { Controller, Post, Param, Req } from '@nestjs/common';
 import { LikeService } from './like.service';
-import { CreateLikeDto } from './dto/create-like.dto';
-import { UpdateLikeDto } from './dto/update-like.dto';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 
 @Controller('like')
 export class LikeController {
-  constructor(private readonly likeService: LikeService, private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly likeService: LikeService,
+    private readonly prisma: PrismaService,
+  ) {}
 
-@Post(':toUserId')
-async likeUser(@Param('toUserId') toUserId: string, @Req() req) {
-  const fromUserId = req.user.id;
-  const like = await this.prisma.like.create({
-    data: { fromUserId, toUserId },
-  });
+  @Post(':toUserId')
+  async likeUser(@Param('toUserId') toUserId: string, @Req() req) {
+    const fromUserId = req.user.id;
+    const like = await this.prisma.like.create({
+      data: { fromUserId, toUserId },
+    });
 
-  // Check match
-  const reverseLike = await this.prisma.like.findFirst({
-    where: { fromUserId: toUserId, toUserId: fromUserId },
-  });
-  if (reverseLike) {
-    await this.prisma.like.update({
-      where: { id: like.id },
-      data: { matched: true },
+    // Check match
+    const reverseLike = await this.prisma.like.findFirst({
+      where: { fromUserId: toUserId, toUserId: fromUserId },
     });
-    await this.prisma.like.update({
-      where: { id: reverseLike.id },
-      data: { matched: true },
-    });
+    if (reverseLike) {
+      await this.prisma.like.update({
+        where: { id: like.id },
+        data: { matched: true },
+      });
+      await this.prisma.like.update({
+        where: { id: reverseLike.id },
+        data: { matched: true },
+      });
+    }
+
+    return like;
   }
-
-  return like;
-}
-
 }
