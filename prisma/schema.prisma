@@ -12,7 +12,7 @@ model User {
   name      String?
   email     String   @unique
   password  String
-  phone     String   @unique
+  phone     Int   @unique
   gender    Gender?
   role      Role     @default(USER)
   latitude  Float?
