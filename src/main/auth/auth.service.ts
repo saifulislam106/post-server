@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'src/common/prisma/prisma.service';
@@ -12,22 +12,45 @@ export class AuthService {
   ) {}
 
   async signup(dto: CreateAuthDto) {
-    const hashedPassword = await bcrypt.hash(dto.password, 10);
+   try{
+    const existingUser = await this.prisma.user.findUnique({
+      where: { email: dto.email },
+    })
+    if (existingUser) {
+      throw new BadRequestException('User with this email already exists');
+    }
+     const hashedPassword = await bcrypt.hash(dto.password, 10);
     const user = await this.prisma.user.create({
       data: { ...dto, password: hashedPassword },
     });
     return user;
+   }catch(err){
+    // console.log(err);
+    return err
+   }
   }
 
   async signin(dto: LoginDto) {
-    const { email, password } = dto;
+   try{
+     const { email, password } = dto;
     const user = await this.prisma.user.findUnique({ where: { email } });
     if (!user) throw new Error('User not found');
 
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) throw new Error('Invalid credentials');
 
-    const token = this.jwtService.sign({ id: user.id });
+    const payload={
+      id:user.id,
+      email:user.email,
+      role:user.role
+    }
+
+    const token = this.jwtService.signAsync(payload);
+    console.log(token);
     return { user, token };
+   }catch(err){
+    console.log(err);
+    return err
+   }
   }
 }

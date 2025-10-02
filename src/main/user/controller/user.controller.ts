@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Param, Query } from '@nestjs/common';
 import { Gender } from '@prisma/client';
 import { PrismaService } from 'src/common/prisma/prisma.service';
-import { FirebaseUserService } from './service/firebase.user.service';
+import { FirebaseUserService } from '../service/firebase.user.service';
 
 @Controller('user')
 export class UserController {
@@ -14,23 +14,5 @@ export class UserController {
   async getOpponents(@Query('gender') gender: Gender) {
     return this.prisma.user.findMany({ where: { gender } });
   }
-  @Post()
-  createUser(@Body() body: any) {
-    return this.userService.createUser(body);
-  }
 
-  @Get('by-gender')
-  getUserByGender(@Query('gender') gender: string) {
-    return this.userService.getUsersByGender(gender);
-  }
-
-  @Get(':id')
-  getUser(@Param('id') id: string) {
-    return this.userService.getUserById(id);
-  }
-
-  @Get()
-  getAllUsers() {
-    return this.userService.getAllUsers();
-  }
 }
